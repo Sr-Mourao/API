@@ -1,55 +1,29 @@
-const inputSearch = document.querySelector("#search")
-const navMenu = document.querySelector("[data-type='nav-menu']")
+function consultaEndereco(){
+    let cep = document.querySelector('#cep').value;
 
-const details = Array.from(navMenu.querySelectorAll("details"))
-const lis = Array.from(navMenu.querySelectorAll("details li"))
-const lisToggle = Array.from(navMenu.querySelectorAll("li.toggle"))
-
-inputSearch.addEventListener("input", function() {
-    const str = this.value;
-    if(str){
-        filterData(str)
-    } else {
-        showAllItens()
+    if(cep.length !== 8){
+        alert('CEP INVALIDO!');
+        return;
     }
-})
+    let url = `https://viacep.com.br/ws/${cep}/json`;
 
-function showAllItens(){
-    lis.forEach( li => li.classList.remove("hide" ))
-    details.forEach(detail => detail.removeAttribute("open"))
-}
-
-function filterData(str){
-    showAllItens()
-    lisToggle.forEach( liToggle => {
-        const details = liToggle.querySelector("details")
-
-        if(!details) return
-
-        const summary = details.querySelector("summary")
-
-        if(summary && summary.textContent.toLowerCase().includes(str.toLowerCase())) {
-            details.setAttribute("open", "")  
-        }
-
-        const lis = details.querySelectorAll("li")
-
-        let found = false 
-
-        for (let i = 0; i < lis.length; i++) {
-            let li = lis[i]
-            if(li.textContent.toLowerCase().includes(str.toLowerCase())){
-                found = true
-                li.classList.remove("hide")
-            } else {
-                li.classList.add("hide")
-            }
-        }
-
-        if(found) {
-            details.setAttribute("open", "")
-        } else {
-            details.removeAttribute("open", "")
-        }
+    fetch(url).then(function(response){
+        response.json().then(mostrarEndereco);
+    });
+    fetch(url).then(function(response){
+        response.json().then(function(data){
+            console.log(data)
+        })
     })
+}
+function mostrarEndereco(dados){
+    let resultado = document.querySelector('#resultado');
+    if(dados.erro){
+        resultado.innerHTML = "endereço não encontrado!";
+    } else {
+        resultado.innerHTML = `<p>endereço: ${dados.logradouro}<p>
+                                <p>ddd: ${dados.ddd}<p>
+                                <p>Bairro> ${dados.bairro}<p>
+                                <p>Cidade: ${dados.localidade} - ${dados.uf}<p>`
+    }                                   
 }
